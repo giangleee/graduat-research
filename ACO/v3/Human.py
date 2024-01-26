@@ -2,15 +2,15 @@ import pandas
 
 
 class Human:
-    __slots__ = ('id', 'name', 'score')
+    __slots__ = ('id', 'name', 'ability_score')
 
-    def __init__(self, id, name, score) -> None:
-        self.id = id
+    def __init__(self, id: float, name: str, abilityScore: float) -> None:
+        self.id = int(id)
         self.name = name
-        self.score = score
+        self.ability_score = abilityScore
 
 
-def get_list_human() -> list:
-    df = pandas.read_csv('./HumanAbilityScore.csv')
-    return [Human(index, row['human'], row['score'])
-            for index, row in df.iterrows()]
+def get_list_human(filename: str = 'HumanAbilityScore.csv') -> list:
+    df = pandas.read_csv(filename)
+    return [Human(row[1]['human_id'], row[1]['name'], row[1]['abilityScore'])
+            for row in df.iterrows()]

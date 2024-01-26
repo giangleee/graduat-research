@@ -1,6 +1,6 @@
-human,score
-1,0.73
-2,0.41
-3,0.62
-4,0.15
-5,0.89
+human_id,name,abilityScore
+1,Giang,0.73
+2,TrangNgan,0.41
+3,Thanh,0.62
+4,TuanAnh,0.15
+5,Uong,0.89
