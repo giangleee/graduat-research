@@ -85,8 +85,10 @@ class AntSystemOptimization:
             return FINISH_POINT_VALUE
         else:
             if randomNumber <= self.__ro:
+                total_equation_value = sum(equation_values.values())
                 for key, value in equation_values.items():
-                    point[key] = 1 - value
+                    # print(item, value)
+                    point[key] = 1 - value / total_equation_value
             else:
                 total_equation_value = sum(equation_values.values())
                 for key, value in equation_values.items():
