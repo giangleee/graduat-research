@@ -1,8 +1,16 @@
+"""
+Ant System Optimization (ACO)
+
+...
+
+4. Functions
+
+"""
+
 from KPI import get_kpi_weight_matrix, get_list_KPI_unit, get_list_KPI_env_score, get_list_KPI_human_score, get_index_by_kpi_id_in_file, KPIUnit
 from Human import get_list_human
 import random
 import numpy
-from decimal import Decimal, getcontext
 
 # define const
 START_POINT_VALUE = 'start'
@@ -10,6 +18,16 @@ FINISH_POINT_VALUE = 'finish'
 
 
 def build_matrix(numPoint, matrixDisc):
+    """
+    Build a matrix based on the given number of points and a matrix dictionary.
+
+    Parameters:
+    - numPoint: Number of points in the matrix.
+    - matrixDisc: Dictionary containing matrix values.
+
+    Returns:
+    - Matrix built from the dictionary.
+    """
     matrix = numpy.zeros((numPoint, numPoint), dtype=float)
     for i, key in enumerate(matrixDisc.keys()):
         matrix[i, :] = numpy.array(matrixDisc[key]) > 0
@@ -17,14 +35,34 @@ def build_matrix(numPoint, matrixDisc):
 
 
 def get_key_by_index(dictionary, index):
+    """
+    Get the key from a dictionary based on its index.
+
+    Parameters:
+    - dictionary: Input dictionary.
+    - index: Index of the key to retrieve.
+
+    Returns:
+    - Key corresponding to the given index.
+    """
     keys_list = list(dictionary.keys())
     return next((key for i, key in enumerate(keys_list) if i == index), None)
+
 
 class AntSystemOptimization:
     __slots__ = ("__weight_matrix", "__list_kpi_unit", "__kpi_env_score", "__human_ability_score", "__kpi_human_score", "__pheromone_tao_matrix",
                  "__population", "__generation", "__beta", "__ro", "__best_path", "__best_path_length", "__default_pheromone_tao_matrix")
 
     def __init__(self, generation: int, population: int, beta: int = 2, ro: float = 0.4) -> None:
+        """
+        Initialize the ACO algorithm with specified parameters.
+
+        Parameters:
+        - generation: Number of generations in the optimization process.
+        - population: Number of ants in each generation.
+        - beta: Parameter controlling the influence of pheromone in path selection (default: 2).
+        - ro: Parameter controlling the balance between global and local pheromone updates (default: 0.4).
+        """
         self.__list_kpi_unit = get_list_KPI_unit()
         self.__weight_matrix = get_kpi_weight_matrix()
         self.__kpi_env_score = get_list_KPI_env_score()
@@ -42,11 +80,31 @@ class AntSystemOptimization:
         self.__best_path_length = 0
 
     def get_human_probabilistic_base_kpi(self, humanId: str, endPointId: str) -> float:
+        """
+        Get the human probabilistic score based on a KPI.
+
+        Parameters:
+        - humanId: ID of the human.
+        - endPointId: ID of the endpoint KPI.
+
+        Returns:
+        - Probabilistic score based on the given human and endpoint KPI.
+        """
         matching_items = [item for item in self.__kpi_human_score if item.human_id ==
                           humanId and endPointId == str(item.kpi_id)]
         return matching_items[0].score if matching_items else 0.0
 
     def get_list_available_next_point(self, startPoint, currentAntPath):
+        """
+        Get the list of reachable next points from a given point.
+
+        Parameters:
+        - startPoint: Starting point of the ant's path.
+        - currentAntPath: Current path taken by the ant.
+
+        Returns:
+        - List of reachable next points.
+        """
         convertStartPoint = str(int(startPoint)) if startPoint not in {
             START_POINT_VALUE, FINISH_POINT_VALUE} else startPoint
 
@@ -60,16 +118,46 @@ class AntSystemOptimization:
 
     # check lai cong thuc
     def get_eta_value(self, startPoint: str, endPointIndex: int) -> float:
+        """
+        Calculate the eta value for a given point and endpoint index.
+
+        Parameters:
+        - startPoint: Starting point of the ant's path.
+        - endPointIndex: Index of the endpoint in the weight matrix.
+
+        Returns:
+        - Eta value.
+        """
         return 1/self.__weight_matrix[startPoint][endPointIndex]
 
     # check lai cong thuc
     def equation_value(self, startPoint: str, endPoint: str) -> float:
+        """
+        Calculate the equation value for a given start point and endpoint.
+
+        Parameters:
+        - startPoint: Starting point of the ant's path.
+        - endPoint: Endpoint of the ant's path.
+
+        Returns:
+        - Equation value.
+        """
         index_start_point = get_index_by_kpi_id_in_file(kpi_id=startPoint)
         index_end_point = get_index_by_kpi_id_in_file(kpi_id=endPoint)
         return self.__pheromone_tao_matrix[index_start_point][index_end_point] * pow(self.get_eta_value(startPoint, endPointIndex=index_end_point), self.__beta) * self.get_human_probabilistic_base_kpi(1, endPoint)
 
     # check lai cong thuc
     def get_best_next_node(self, startPoint, reachablePoint) -> str:
+        """
+        Determine the best next node based on pheromone levels and heuristics.
+
+        Parameters:
+        - startPoint: Starting point of the ant's path.
+        - reachablePoint: List of reachable next points.
+
+        Returns:
+        - Best next node.
+        """
         if not reachablePoint:
             return 'finish'
 
@@ -98,6 +186,15 @@ class AntSystemOptimization:
             return max(point, key=point.get, default=-1)
 
     def calculate_len(self, path: list = []) -> float:
+        """
+        Calculate the length of a given path.
+
+        Parameters:
+        - path: Path for which to calculate the length.
+
+        Returns:
+        - Length of the path.
+        """
         total_length = 0
 
         for index, value in enumerate(path):
@@ -107,6 +204,16 @@ class AntSystemOptimization:
         return total_length
 
     def get_rho_value(self, humanId: str, endPointIndex: int) -> float:
+        """
+        Calculate the rho value based on environmental and human scores.
+
+        Parameters:
+        - humanId: ID of the human.
+        - endPointIndex: Index of the endpoint in the weight matrix.
+
+        Returns:
+        - Rho value.
+        """
         endPointEnvScore = next((item.score for item in self.__kpi_env_score if str(
             item.kpi_id) == get_key_by_index(self.__weight_matrix, endPointIndex)), 0)
 
@@ -116,6 +223,14 @@ class AntSystemOptimization:
         return (1 - endPointEnvScore) * (1 - humanScore)
 
     def update_pheromone(self, indexRow: int, indexColumn: int, isGlobal: bool = False):
+        """
+        Update pheromone levels between two points.
+
+        Parameters:
+        - indexRow: Row index in the pheromone matrix.
+        - indexColumn: Column index in the pheromone matrix.
+        - isGlobal: Flag indicating whether the update is global or local (default: False).
+        """
         if self.__pheromone_tao_matrix[indexRow][indexColumn] != 0:
             current_rho_value = self.get_rho_value('1', indexColumn)
             current_pheromone_value = self.__pheromone_tao_matrix[indexRow][indexColumn]
@@ -133,11 +248,17 @@ class AntSystemOptimization:
             self.__pheromone_tao_matrix[indexRow][indexColumn] = update_value
 
     def update_local_pheromone(self):
+        """
+        Update local pheromone levels.
+        """
         for indexRow, row in enumerate(self.__pheromone_tao_matrix):
             for indexColumn, _ in enumerate(row):
                 self.update_pheromone(indexRow, indexColumn)
 
     def update_global_pheromone(self):
+        """
+        Update global pheromone levels based on the best path.
+        """
         for index, item in enumerate(self.__best_path):
             if item != FINISH_POINT_VALUE:
                 indexItem = get_index_by_kpi_id_in_file(kpi_id=item)
@@ -146,6 +267,9 @@ class AntSystemOptimization:
                 self.update_pheromone(indexItem, indexNextItem, True)
 
     def run(self):
+        """
+        Run the ACO algorithm for a specified number of generations and population size.
+        """
         for _ in range(self.__generation):
             current_gen_path = {}
 
@@ -172,5 +296,8 @@ class AntSystemOptimization:
         print(self.__best_path, self.__best_path_length)
 
 
-aco = AntSystemOptimization(10, 10)
-aco.run()
+# Example Usage
+if __name__ == "__main__":
+    # Example usage of the Ant System Optimization
+    aco = AntSystemOptimization(generation=10, population=10)
+    aco.run()
