@@ -3,6 +3,7 @@ from Human import get_list_human
 import random
 import numpy
 from decimal import Decimal, getcontext
+from random import randint
 
 # define const
 START_POINT_VALUE = 'start'
@@ -97,11 +98,10 @@ class ASO:
                 point[item] = 1 - value
         else:
             total_equation_value = sum(equation_values.values())
-            # print(equation_values)
+            print(equation_values)
             for item, value in equation_values.items():
                 point[item] = 1 - value / total_equation_value
 
-        # print(point)
         return max(point, key=point.get, default=-1)
 
     def are_adjacent(self, array, startPoint, endPoint):
@@ -133,7 +133,7 @@ class ASO:
                     (1 - current_rho_value) * pheromone_value
 
             self.__pheromone_tao_matrix[indexRow][indexColumn] = update_value
-            print(self.__pheromone_tao_matrix[indexRow][indexColumn])
+            # print(self.__pheromone_tao_matrix[indexRow][indexColumn])
 
 
     def update_local_pheromone(self) -> None:
@@ -163,11 +163,13 @@ class ASO:
                 current_ant_path = []
                 if (current_ant_path == []):
                     current_ant_path.append('start')
+                current_ant_path.append(
+                    str(randint(1, len(self.__weight_matrix) - 2)))
 
                 # loop
                 while len(current_ant_path) != len(self.__kpi_unit):
                     reachable_point = self.get_list_available_next_note(
-                        current_ant_path[0], current_ant_path)
+                        current_ant_path[-1], current_ant_path)
                     best_next_point = self.get_best_next_node(
                         current_ant_path[-1], reachable_point)
                     current_ant_path.append(best_next_point)
