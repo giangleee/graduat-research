@@ -10,7 +10,7 @@ class AntColony(AntColonyOperation):
     def __init__(self, population: int, generation: int):
         super().__init__(population=population, generation=generation)
 
-    def run(self) -> None:
+    def run(self) -> float:
         for _ in range(self.get_generation()):
             current_generation_path: List[Dict[str, List[str] | float]] = []
 
@@ -39,11 +39,33 @@ class AntColony(AntColonyOperation):
                 self.set_best_path(smallest_length_item['path'])
                 self.set_best_path_length(smallest_length_item['length'])
 
-        print(self.get_best_path_length())
-        print(self.get_best_path())
-        print(self.get_pheromone_tao_matrix())
+        # print(self.get_best_path_length())
+        return self.get_best_path_length()
 
 
-if __name__ == "__main__":
-    aco = AntColony(100, 10)
-    aco.run()
+# if __name__ == "__main__":
+
+
+# if __name__ == "__main__":
+    # import pandas as pd
+    # import numpy as np
+    # import plotly.express as px
+    #
+    # num_points = 100
+    # random_data: List[float] = []
+    # for i in range(num_points):
+    #     aco = AntColony(100, i)
+    #     random_data.append(aco.run())
+    #     print("Đã hoàn thành lần thứ", i)
+    #
+    # series = pd.Series(random_data, name='Value')
+    #
+    # df = pd.DataFrame(series)
+    #
+    # fig = (px.line(df.explode('Value'), y='Value', title='Scatter Plot of Random Points')
+    #        .update_layout(xaxis_title='Point', yaxis_title='Value'))
+    #
+    # fig.show()
+
+
+
