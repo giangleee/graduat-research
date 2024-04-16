@@ -1,5 +1,5 @@
 from multiprocessing import cpu_count
-from object import ObjectiveFunction
+from object_define import ObjectiveFunction
 from multiprocessing import Pool, Event
 from datetime import datetime
 from collections import namedtuple
@@ -49,6 +49,7 @@ def worker(objective_function):
     except KeyboardInterrupt:
         terminating.set()
         raise
+
 
 
 if __name__ == '__main__':
